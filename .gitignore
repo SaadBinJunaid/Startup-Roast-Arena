@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# Root .gitignore for Startup Roast Arena
+# Applies to the whole repository (backend/ and frontend/ are covered too).
+# The rules in backend/.gitignore and frontend/.gitignore apply as well.
+# ---------------------------------------------------------------------------
+
+# Dependencies (never commit installed packages)
+node_modules/
+
+# Environment files and secrets - NEVER commit these.
+# The "!" line keeps the safe .env.example templates tracked.
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Caches
+.cache/
+.eslintcache
+.vite/
+.npm/
+
+# Vercel CLI (local project links / metadata)
+.vercel/
+
+# Editor / IDE folders
+.vscode/
+.idea/
+
+# Editor / IDE files
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Operating system files (Windows + macOS)
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

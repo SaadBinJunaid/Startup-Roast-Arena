@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Environment secrets - NEVER commit these.
+# Every .env.* file is ignored, but the safe .env.example template stays tracked.
+.env
+.env.*
+!.env.example
+
+# Build output / coverage
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Caches
+.cache/
+.eslintcache
+
+# Vercel CLI (local project link + metadata)
+.vercel/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

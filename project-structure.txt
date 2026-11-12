@@ -1,0 +1,131 @@
+STARTUP-ROAST-ARENA — ACTUAL folder tree
+(Verified on disk: 2026-11-12, after full implementation + testing)
+
+NOTE: This is the FINAL structure. All files contain working code
+      (not placeholders). Dependencies are installed (npm ci, both sides).
+      Tests run: backend smoke test 44/44 PASS, frontend build + lint PASS.
+
+Renames applied this round (4 safe renames, all references updated):
+  backend/config/db.js          -> backend/config/database.js
+  frontend/src/services/api.js  -> frontend/src/services/apiClient.js
+  frontend/src/pages/SubmitIdea.jsx -> frontend/src/pages/SubmitPitch.jsx
+  frontend/src/pages/MyIdeas.jsx    -> frontend/src/pages/MyPitches.jsx
+  (URL routes /submit and /my-ideas are UNCHANGED)
+
+STARTUP-ROAST-ARENA/
+│
+├── PROJECT_GUIDE.md              ← source of truth (requirements + design)
+├── PROGRESS.md                   ← task tracking (real status only)
+├── project-structure.txt         ← this file
+│
+├── backend/                      [8 folders + scripts, real implementation]
+│   ├── package.json              ← express 5, mongoose 9, zod 4, @google/generative-ai, bcryptjs, jsonwebtoken, cors, dotenv
+│   ├── package-lock.json
+│   ├── .env                      ← owner's secrets (5 keys; NEVER committed)
+│   ├── .env.example              ← placeholder template (in git; cleaned of leaked cluster info)
+│   ├── .gitignore                ← ignores node_modules, .env, logs
+│   │
+│   ├── config/
+│   │   ├── database.js           ← MongoDB connection (RENAMED from db.js)
+│   │   └── aiConfig.js           ← AI limits (score 1-10, funding ≤ 5,000,000, equity 1-30%, 3 investors)
+│   │
+│   ├── controllers/
+│   │   ├── authController.js     ← register, login, me (Zod validated)
+│   │   ├── ideaController.js     ← create, list, single, repitch (owner only)
+│   │   ├── reviewController.js   ← evaluate (owner only), get reviews ?version=N
+│   │   ├── voteController.js     ← cast vote (403 self / 409 duplicate), get votes
+│   │   └── leaderboardController.js ← 70/30 formula, rank ordering
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js     ← protect (JWT) + optionalAuth
+│   │   └── errorMiddleware.js    ← 404 + central error handler
+│   │
+│   ├── models/
+│   │   ├── User.js               ← name, email (unique), hashed password
+│   │   ├── Idea.js               ← owner + embedded versions[] history
+│   │   ├── Review.js             ← 3 investor reviews per version
+│   │   └── Vote.js               ← unique index { idea, user }
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js         ← /api/auth
+│   │   ├── ideaRoutes.js         ← /api/ideas (nested review/vote routers)
+│   │   ├── reviewRoutes.js       ← /api/ideas/:id/evaluate, /reviews
+│   │   ├── voteRoutes.js         ← /api/ideas/:id/vote, /votes
+│   │   └── leaderboardRoutes.js  ← /api/leaderboard
+│   │
+│   ├── services/
+│   │   └── aiService.js          ← Gemini calls + Zod validation + retry
+│   │
+│   ├── scripts/                  ← NEW (safe, non-destructive tooling)
+│   │   ├── setupDatabase.js      ← creates/verifies collections in Smit-Project (no data writes)
+│   │   └── smokeTest.js          ← 44-assertion end-to-end API test (incl. real Gemini call)
+│   │
+│   ├── utils/
+│   │   ├── validation.js         ← Zod schemas (requests + AI responses)
+│   │   └── generateToken.js      ← JWT signing helper (7d expiry)
+│   │
+│   └── index.js                  ← server entry point (cors, json, routes, health)
+│
+└── frontend/                     [React 19 + Vite 8, "Pitch Ledger" redesign]
+    ├── package.json              ← react, react-dom, react-router-dom, axios, lucide-react
+    ├── package-lock.json
+    ├── vite.config.js
+    ├── eslint.config.js
+    ├── index.html                ← Vite entry (mounts #root → src/main.jsx)
+    ├── .env                      ← VITE_API_URL=http://localhost:5000/api (not a secret)
+    ├── .env.example              ← placeholder template (in git)
+    ├── .gitignore                ← ignores node_modules, .env, dist
+    │
+    ├── public/
+    │   ├── favicon.svg
+    │   └── icons.svg
+    │
+    ├── dist/                     ← production build output (npm run build)
+    │
+    └── src/
+        ├── assets/               ← images/icons folder (empty)
+        │
+        ├── components/
+        │   ├── Navbar.jsx        ← masthead strip + responsive nav
+        │   ├── Footer.jsx        ← 3-column footer
+        │   ├── ProtectedRoute.jsx
+        │   ├── IdeaCard.jsx      ← horizontal idea row
+        │   ├── InvestorReviewCard.jsx ← big-score verdict row
+        │   ├── RoastBadge.jsx
+        │   ├── Loader.jsx
+        │   ├── ErrorMessage.jsx
+        │   └── EmptyState.jsx
+        │
+        ├── context/
+        │   └── AuthContext.jsx   ← login state + JWT storage
+        │
+        ├── pages/
+        │   ├── Landing.jsx       ← /  (2-col hero, roster, steps, pitch rows)
+        │   ├── Register.jsx      ← /register  (split-screen)
+        │   ├── Login.jsx         ← /login     (split-screen)
+        │   ├── Dashboard.jsx     ← /dashboard (stat strip)
+        │   ├── SubmitPitch.jsx   ← /submit    (RENAMED from SubmitIdea.jsx)
+        │   ├── IdeaDetails.jsx   ← /ideas/:id (2-col + sticky sidebar)
+        │   ├── Leaderboard.jsx   ← /leaderboard (podium + ruled table)
+        │   ├── MyPitches.jsx     ← /my-ideas  (RENAMED from MyIdeas.jsx)
+        │   └── NotFound.jsx      ← catch-all 404
+        │
+        ├── services/
+        │   └── apiClient.js      ← Axios instance + getErrorMessage (RENAMED from api.js)
+        │
+        ├── App.jsx               ← all routes + Navbar/Footer layout
+        ├── App.css               ← "Pitch Ledger" component styles
+        ├── index.css             ← "Pitch Ledger" design system
+        └── main.jsx              ← BrowserRouter + AuthProvider
+
+Final verification:
+  ✅ frontend: npm run build PASS (exit 0), npm run lint PASS (exit 0)
+  ✅ backend:  /api/health -> {"status":"ok","database":"connected"}
+  ✅ backend:  scripts/smokeTest.js -> 44/44 PASS (exit 0), real Gemini call
+  ✅ frontend: dev server serves /, /login, /leaderboard, /ideas/:id (all 200)
+  ✅ MongoDB Smit-Project collections: users, ideas, reviews, votes
+  ✅ indexes: users.email unique, votes.idea_1_user_1 unique
+  ℹ️ justified additions not in the guide's original tree:
+     - frontend/index.html       (Vite cannot run without it)
+     - frontend/.gitignore       (required so .env is never committed)
+     - backend/scripts/*         (safe setup + test tooling added this round)
